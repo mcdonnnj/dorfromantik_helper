@@ -11,7 +11,7 @@ class DorfBoard:
 
 
     def __init__(self, from_npz=None):
-        
+
         if from_npz is None:
             self.size = 8
             self.edges = np.zeros([self.size, self.size, 6], dtype=np.uint8)
@@ -110,7 +110,7 @@ class DorfBoard:
         else:
             return True
 
-    
+
     def is_good_connection(self, x, y, edge_index, tile=None):
         if tile is None:
             tile = self.edges[x,y]
@@ -283,7 +283,3 @@ class DorfBoard:
 
     def save(self, to_npz):
         np.savez(to_npz, edges=self.edges, status=self.status)
-
-
-
-

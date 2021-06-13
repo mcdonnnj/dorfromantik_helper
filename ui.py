@@ -12,7 +12,7 @@ Canvas that displays the full game board
 class DorfBoardCanvas(Canvas):
     def __init__(self, master, board, tile_canvas, pix_width=1300, pix_height=1000, *args, **kwargs):
         Canvas.__init__(self, master, background='white', width=pix_width, height=pix_height, *args, **kwargs)
-        
+
         self.board = board
         self.tile_canvas = tile_canvas
         self.pix_height = pix_height
@@ -20,7 +20,7 @@ class DorfBoardCanvas(Canvas):
 
         self.hint_hexes = []
         self.selected_hex = None
-        
+
         self.set_coordinate_transform_parameters()
         self.set_hex_centers()
 
@@ -172,7 +172,7 @@ class DorfBoardCanvas(Canvas):
         if self.board.status[x,y] == TileStatus.VALID:
             connections = self.board.get_connecting_edges(x, y)
         else:
-            connections = None    
+            connections = None
         self.tile_canvas.set_connections(connections)
 
 
@@ -193,9 +193,9 @@ class HexTileCanvas(Canvas):
         self.y_scale = scale                                # half hexagon height
         self.pix_height = 3 * self.y_scale
         self.pix_width  = 3 * self.x_scale
-        
+
         Canvas.__init__(self, master, background='white', width=self.pix_width, height=self.pix_height, *args, **kwargs)
-        
+
         self.selected_slice = None
         self.edges = 6 * [None]
         self.select_slice(0)
@@ -328,7 +328,7 @@ class HexTileCanvas(Canvas):
             if self.is_inside_triangle((x,y), vertices):
                 return i
         return None
-        
+
 
     def on_click(self, event):
         # Get location of newly selected hex tile (if any)
@@ -398,7 +398,7 @@ class App(Tk):
         tile_controls.append(Button(frame, text="Station", command=lambda: fn(TileEdge.STATION)))
         for i, button in enumerate(tile_controls):
             button.grid(row=i, column=1)
-        
+
         rotate_controls = []
         frame = self.control_frame
         rotate_controls.append(Button(frame, text="Rotate CW",  command=lambda: self.tile_canvas.rotate(reverse=False)))
