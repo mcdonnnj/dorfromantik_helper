@@ -8,7 +8,7 @@ A basic GUI helper tool for the game
 Install with `pip`:
 
 ```console
-python -m pip https://github.com/mcdonnnj/dorfromantik_helper/archive/master.tar.gz
+python -m pip install https://github.com/mcdonnnj/dorfromantik_helper/archive/main.tar.gz
 ```
 
 ## Usage ##
