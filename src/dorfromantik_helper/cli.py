@@ -9,7 +9,14 @@ from .ui import App
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Board suggestions for the game Dorfromantik."
+    )
+
+    # Use the script name even if this is called with `python -m dorfromantik_helper`
+    if parser.prog == "__main__.py":
+        parser.prog = "dorfromantik-helper"
+
     parser.add_argument(
         "--load", "-l", action="store_true", help="Load data from last manual save"
     )
