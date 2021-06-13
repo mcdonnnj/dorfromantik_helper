@@ -1,15 +1,12 @@
+"""Canvas that displays the full game board."""
 # Standard Python Libraries
-import argparse
-import os
-from tkinter import *
+from tkinter import Button, Canvas, Frame, Label, Tk
 
-# Local Libraries
-from board import *
-from constants import *
+# Third-Party Libraries
+import numpy as np
 
-"""
-Canvas that displays the full game board
-"""
+from . import constants
+from .board import DorfBoard
 
 
 class DorfBoardCanvas(Canvas):
@@ -45,9 +42,11 @@ class DorfBoardCanvas(Canvas):
         self.set_hex_centers()
 
     def set_coordinate_transform_parameters(self):
-        """
-        Computes and stores pixel offsets and scaling parameters needed to center the hex grid on the canvas
-        Offsets the coordinates if the displayed board is wider or taller than the canvas allows
+        """Compute and store pixel offsets and scaling parameters.
+
+        These are needed to center the hex grid on the canvas. Offsets the
+        coordinates if the displayed board is wider or taller than the canvas
+        allows
         """
         # Compute the (x,y) locations in pre-transformed pixel space of all non-empty board tiles
         all_loc_x = []
@@ -89,17 +88,13 @@ class DorfBoardCanvas(Canvas):
         return
 
     def get_hex_center_pix(self, x, y):
-        """
-        Returns the (x,y) coordinates in pixel space of a given hex position
-        """
+        """Return the (x,y) coordinates in pixel space of a given hex position."""
         pix_x = self.x_scale * (1 + 2 * x + y) - self.pix_x_offset
         pix_y = self.y_scale * (1 + 1.5 * y) - self.pix_y_offset
         return pix_x, pix_y
 
     def set_hex_centers(self):
-        """
-        Computes and stores the (x,y) coordinates in pixel space of all hex positions
-        """
+        """Compute and store the (x,y) coordinates in pixel space of all hex positions."""
         self.centers = np.zeros((self.board.size, self.board.size, 2))
         for x in range(self.board.size):
             for y in range(self.board.size):
@@ -110,13 +105,11 @@ class DorfBoardCanvas(Canvas):
         self,
         x,
         y,
-        border_color=TileOutlineColors.NORMAL,
+        border_color=constants.TileOutlineColors.NORMAL,
         border_width=2,
         fill_color="blue",
     ):
-        """
-        Draws a hexagon on the canvas given a hex position
-        """
+        """Draw a hexagon on the canvas given a hex position."""
         pix_x, pix_y = self.get_hex_center_pix(x, y)
         # Compute the coordinates of hexagon vertices
         y_size = self.y_scale
@@ -151,18 +144,16 @@ class DorfBoardCanvas(Canvas):
                 )
 
     def draw_board(self):
-        """
-        Draws the full game board on the canvas
-        """
+        """Draw the full game board on the canvas."""
         for x, row in enumerate(self.board.status):
             for y, status in enumerate(row):
-                if status == TileStatus.EMPTY:
+                if status == constants.TileStatus.EMPTY:
                     # self.draw_hexagon(x, y, fill_color=None, border_color='purple')
                     continue
-                elif status == TileStatus.VALID and (x, y) in self.hint_hexes:
-                    fill_color = TileStatusColors.HINT
+                elif status == constants.TileStatus.VALID and (x, y) in self.hint_hexes:
+                    fill_color = constants.TileStatusColors.HINT
                 else:
-                    fill_color = get_color_from_status(status)
+                    fill_color = constants.get_color_from_status(status)
                 self.draw_hexagon(x, y, fill_color=fill_color)
 
     @staticmethod
@@ -170,10 +161,11 @@ class DorfBoardCanvas(Canvas):
         return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
 
     def get_xy_from_pix(self, pix_x, pix_y):
-        """
-        Returns the (x,y) position of the hex belonging to the given pixel coordinates
-        Approximates the hexagon as a circle with the inner radius of the hexagon
-        Gives a 5 percent margin of error to avoid confusing between neighboring hexes
+        """Return the (x,y) position of the hex belonging to the given pixel coordinates.
+
+        Approximates the hexagon as a circle with the inner radius of the hexagon.
+        Gives a five percent margin of error to avoid confusing between neighboring
+        hexes.
         """
         for x in range(self.board.size):
             for y in range(self.board.size):
@@ -186,16 +178,16 @@ class DorfBoardCanvas(Canvas):
         return None
 
     def on_click(self, event):
-        """
-        Controls behavior of the canvas on a left mouse click
-        Used for highlighting a selected hex
-        Sets the location of the selected hex and a tile that represents the surrounding connect
+        """Control behavior of the canvas on a left mouse click.
+
+        Used for highlighting a selected hex. Sets the location of the selected hex
+        and a tile that represents the surrounding connection.
         """
         # Remove highlight from previously selected hex tile
         if self.selected_hex:
             x, y = self.selected_hex
             self.draw_hexagon(
-                x, y, border_color=TileOutlineColors.NORMAL, fill_color=None
+                x, y, border_color=constants.TileOutlineColors.NORMAL, fill_color=None
             )
             self.selected_hex = None
         # Get location of newly selected hex tile (if any)
@@ -204,22 +196,20 @@ class DorfBoardCanvas(Canvas):
             return
         # Highlight newly selected tile if not empty
         x, y = loc
-        if self.board.status[x, y] != TileStatus.EMPTY:
+        if self.board.status[x, y] != constants.TileStatus.EMPTY:
             self.selected_hex = loc
             self.draw_hexagon(
-                x, y, border_color=TileOutlineColors.SELECTED, fill_color=None
+                x, y, border_color=constants.TileOutlineColors.SELECTED, fill_color=None
             )
         # Set the connecting edges in the slice canvas
-        if self.board.status[x, y] == TileStatus.VALID:
+        if self.board.status[x, y] == constants.TileStatus.VALID:
             connections = self.board.get_connecting_edges(x, y)
         else:
             connections = None
         self.tile_canvas.set_connections(connections)
 
     def set_hint(self, hints):
-        """
-        Set which tiles to highlight given a hint
-        """
+        """Set which tiles to highlight given a hint."""
         self.hint_hexes = []
         if hints is None:
             return
@@ -247,7 +237,7 @@ class HexTileCanvas(Canvas):
         self.selected_slice = None
         self.edges = 6 * [None]
         self.select_slice(0)
-        self.set_tile(6 * [TileEdge.GRASS])
+        self.set_tile(6 * [constants.TileEdge.GRASS])
 
     def get_tile(self):
         return self.edges
@@ -304,11 +294,13 @@ class HexTileCanvas(Canvas):
     def set_edge(self, index, feature):
         self.edges[index] = feature
         if self.selected_slice == index or self.selected_slice == -1:
-            border_color = TileOutlineColors.SELECTED
+            border_color = constants.TileOutlineColors.SELECTED
         else:
-            border_color = TileOutlineColors.NORMAL
+            border_color = constants.TileOutlineColors.NORMAL
         self.draw_slice(
-            index, fill_color=get_color_from_feature(feature), border_color=border_color
+            index,
+            fill_color=constants.get_color_from_feature(feature),
+            border_color=border_color,
         )
 
     def set_tile(self, tile):
@@ -316,7 +308,7 @@ class HexTileCanvas(Canvas):
             self.set_edge(index, feature)
         self.draw_slice(
             self.selected_slice,
-            border_color=TileOutlineColors.SELECTED,
+            border_color=constants.TileOutlineColors.SELECTED,
             fill_color=None,
         )
 
@@ -324,32 +316,38 @@ class HexTileCanvas(Canvas):
         for index in range(6):
             self.draw_connection(
                 index,
-                fill_color=TileFeatureColors.EMPTY,
-                border_color=TileOutlineColors.EMPTY,
+                fill_color=constants.TileFeatureColors.EMPTY,
+                border_color=constants.TileOutlineColors.EMPTY,
             )
         if not connections:
             return
         for index, feature in enumerate(connections):
-            if feature != TileEdge.EMPTY:
+            if feature != constants.TileEdge.EMPTY:
                 self.draw_connection(
                     index,
-                    fill_color=get_color_from_feature(feature),
-                    border_color=TileOutlineColors.NORMAL,
+                    fill_color=constants.get_color_from_feature(feature),
+                    border_color=constants.TileOutlineColors.NORMAL,
                 )
 
     def select_slice(self, index):
         # remove any existing highlights
         for i in range(6):
-            self.draw_slice(i, border_color=TileOutlineColors.NORMAL, fill_color=None)
+            self.draw_slice(
+                i, border_color=constants.TileOutlineColors.NORMAL, fill_color=None
+            )
         # highlight newly selected slice
-        self.draw_slice(index, border_color=TileOutlineColors.SELECTED, fill_color=None)
+        self.draw_slice(
+            index, border_color=constants.TileOutlineColors.SELECTED, fill_color=None
+        )
         self.selected_slice = index
 
     def select_all(self):
         print("Selected slice: ALL")
         self.selected_slice = -1
         for i in range(6):
-            self.draw_slice(i, border_color=TileOutlineColors.SELECTED, fill_color=None)
+            self.draw_slice(
+                i, border_color=constants.TileOutlineColors.SELECTED, fill_color=None
+            )
 
     def set_selected_edge(self, feature, auto_advance=True):
         if self.selected_slice == -1:
@@ -459,28 +457,30 @@ class App(Tk):
             Button(frame, text="ALL", command=self.tile_canvas.select_all)
         )
         tile_controls.append(
-            Button(frame, text="Grass", command=lambda: fn(TileEdge.GRASS))
+            Button(frame, text="Grass", command=lambda: fn(constants.TileEdge.GRASS))
         )
         tile_controls.append(
-            Button(frame, text="Trees", command=lambda: fn(TileEdge.TREES))
+            Button(frame, text="Trees", command=lambda: fn(constants.TileEdge.TREES))
         )
         tile_controls.append(
-            Button(frame, text="House", command=lambda: fn(TileEdge.HOUSE))
+            Button(frame, text="House", command=lambda: fn(constants.TileEdge.HOUSE))
         )
         tile_controls.append(
-            Button(frame, text="Crops", command=lambda: fn(TileEdge.CROPS))
+            Button(frame, text="Crops", command=lambda: fn(constants.TileEdge.CROPS))
         )
         tile_controls.append(
-            Button(frame, text="River", command=lambda: fn(TileEdge.RIVER))
+            Button(frame, text="River", command=lambda: fn(constants.TileEdge.RIVER))
         )
         tile_controls.append(
-            Button(frame, text="Train", command=lambda: fn(TileEdge.TRAIN))
+            Button(frame, text="Train", command=lambda: fn(constants.TileEdge.TRAIN))
         )
         tile_controls.append(
-            Button(frame, text="Water", command=lambda: fn(TileEdge.WATER))
+            Button(frame, text="Water", command=lambda: fn(constants.TileEdge.WATER))
         )
         tile_controls.append(
-            Button(frame, text="Station", command=lambda: fn(TileEdge.STATION))
+            Button(
+                frame, text="Station", command=lambda: fn(constants.TileEdge.STATION)
+            )
         )
         for i, button in enumerate(tile_controls):
             button.grid(row=i, column=1)
@@ -510,12 +510,12 @@ class App(Tk):
         self.can_undo = False
 
     def manual_save(self):
-        self.board_canvas.board.save(to_npz=MANUAL_SAVE_FILEPATH)
+        self.board_canvas.board.save(to_npz=constants.MANUAL_SAVE_FILEPATH)
         self.log.config(text="Saved board state")
 
     def undo(self):
         if self.can_undo:
-            board = DorfBoard(from_npz=AUTO_SAVE_FILEPATH)
+            board = DorfBoard(from_npz=constants.AUTO_SAVE_FILEPATH)
             self.board_canvas = DorfBoardCanvas(
                 self.boardview_frame, board=board, tile_canvas=self.tile_canvas
             )
@@ -531,12 +531,12 @@ class App(Tk):
         if self.board_canvas.selected_hex is None:
             self.log.config(text="ERROR: no selected tile")
         x, y = self.board_canvas.selected_hex
-        if self.board_canvas.board.status[x, y] != TileStatus.VALID:
+        if self.board_canvas.board.status[x, y] != constants.TileStatus.VALID:
             self.log.config(
                 text="ERROR: Illegal tile placement at ({},{})".format(x, y)
             )
             return
-        self.board_canvas.board.save(to_npz=AUTO_SAVE_FILEPATH)
+        self.board_canvas.board.save(to_npz=constants.AUTO_SAVE_FILEPATH)
         self.can_undo = True
         tile = self.tile_canvas.get_tile()
         self.board_canvas.board.place_tile(x, y, tile)
@@ -546,7 +546,7 @@ class App(Tk):
         self.board_canvas.selected_hex = None
         self.board_canvas.set_hint(None)
         self.board_canvas.draw_board()
-        self.tile_canvas.set_tile(6 * [TileEdge.GRASS])
+        self.tile_canvas.set_tile(6 * [constants.TileEdge.GRASS])
         self.tile_canvas.set_connections(None)
         self.log.config(text="Placed tile at ({},{})".format(x, y))
 
@@ -555,10 +555,10 @@ class App(Tk):
             self.log.config(text="ERROR: No selected hex to remove")
             return
         x, y = self.board_canvas.selected_hex
-        if self.board_canvas.board.status[x, y] == TileStatus.VALID:
+        if self.board_canvas.board.status[x, y] == constants.TileStatus.VALID:
             self.log.config(text="ERROR: Illegal tile removal at ({},{})".format(x, y))
             return
-        self.board_canvas.board.save(to_npz=AUTO_SAVE_FILEPATH)
+        self.board_canvas.board.save(to_npz=constants.AUTO_SAVE_FILEPATH)
         self.can_undo = True
         self.board_canvas.board.remove_tile(x, y)
         self.board_canvas.selected_hex = None
@@ -572,7 +572,7 @@ class App(Tk):
             self.log.config(text="ERROR: No selected hex to sample")
             return
         x, y = self.board_canvas.selected_hex
-        if self.board_canvas.board.status[x, y] == TileStatus.VALID:
+        if self.board_canvas.board.status[x, y] == constants.TileStatus.VALID:
             self.log.config(text="ERROR: Illegal tile sample at ({},{})".format(x, y))
             return
         tile = self.board_canvas.board.edges[x, y]
@@ -603,42 +603,31 @@ class App(Tk):
     def display_stats(self):
         text = "{} tiles placed\n".format(
             self.board_canvas.board.get_num_tiles_with_status(
-                [TileStatus.GOOD, TileStatus.PERFECT, TileStatus.IMPERFECT]
+                [
+                    constants.TileStatus.GOOD,
+                    constants.TileStatus.PERFECT,
+                    constants.TileStatus.IMPERFECT,
+                ]
             )
             - 1
         )
         text += "{} perfect tiles\n".format(
-            self.board_canvas.board.get_num_tiles_with_status(TileStatus.PERFECT)
+            self.board_canvas.board.get_num_tiles_with_status(
+                constants.TileStatus.PERFECT
+            )
         )
         text += "{} bad tiles\n".format(
-            self.board_canvas.board.get_num_tiles_with_status(TileStatus.IMPERFECT)
+            self.board_canvas.board.get_num_tiles_with_status(
+                constants.TileStatus.IMPERFECT
+            )
         )
         text += "{} legal tile locations\n".format(
-            self.board_canvas.board.get_num_tiles_with_status(TileStatus.VALID)
+            self.board_canvas.board.get_num_tiles_with_status(
+                constants.TileStatus.VALID
+            )
         )
         self.log.config(text=text)
 
     def correct_quit(self):
         self.destroy()
         self.quit()
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--load", "-l", action="store_true", help="Load data from last manual save"
-    )
-    parser.add_argument(
-        "--height", "-y", type=int, help="Pixel height of the board display"
-    )
-    parser.add_argument(
-        "--width", "-x", type=int, help="Pixel width of the board display"
-    )
-    args = parser.parse_args()
-
-    from_npz = MANUAL_SAVE_FILEPATH if args.load else None
-    if not os.path.exists(SAVE_DIR):
-        os.mkdir(SAVE_DIR)
-
-    app = App(from_npz=from_npz, pix_height=args.height, pix_width=args.width)
-    app.mainloop()

@@ -1,3 +1,5 @@
+"""Constant values used by the package."""
+
 # Standard Python Libraries
 import os
 
