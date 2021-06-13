@@ -1,5 +1,10 @@
+# Standard Python Libraries
 from collections import namedtuple
+
+# Third-Party Libraries
 import numpy as np
+
+# Local Libraries
 from constants import *
 
 

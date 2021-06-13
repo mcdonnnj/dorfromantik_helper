@@ -1,10 +1,11 @@
+# Standard Python Libraries
 import argparse
 import os
-
 from tkinter import *
+
+# Local Libraries
 from board import *
 from constants import *
-
 
 """
 Canvas that displays the full game board
