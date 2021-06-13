@@ -11,14 +11,7 @@ from .board import DorfBoard
 
 class DorfBoardCanvas(Canvas):
     def __init__(
-        self,
-        master,
-        board,
-        tile_canvas,
-        pix_width=1300,
-        pix_height=1000,
-        *args,
-        **kwargs
+        self, master, board, tile_canvas, pix_height, pix_width, *args, **kwargs
     ):
         Canvas.__init__(
             self,
@@ -405,6 +398,9 @@ class App(Tk):
 
         board = DorfBoard(from_npz=from_npz)
 
+        self.canvas_height = pix_height
+        self.canvas_width = pix_width
+
         self.boardview_frame = Frame(self, background="#FFF0C1", bd=1, relief="sunken")
         self.tile_frame = Frame(self, background="#D2E2FB", bd=1, relief="sunken")
         self.control_frame = Frame(self, background="#CCE4CA", bd=1, relief="sunken")
@@ -431,7 +427,11 @@ class App(Tk):
         self.tile_canvas.grid(row=0, column=0)
 
         self.board_canvas = DorfBoardCanvas(
-            self.boardview_frame, board=board, tile_canvas=self.tile_canvas
+            self.boardview_frame,
+            board=board,
+            tile_canvas=self.tile_canvas,
+            pix_height=self.canvas_height,
+            pix_width=self.canvas_width,
         )
         self.board_canvas.bind("<Button-1>", self.board_canvas.on_click)
         self.board_canvas.grid(row=0, column=0, padx=5, pady=5)
@@ -517,7 +517,11 @@ class App(Tk):
         if self.can_undo:
             board = DorfBoard(from_npz=constants.AUTO_SAVE_FILEPATH)
             self.board_canvas = DorfBoardCanvas(
-                self.boardview_frame, board=board, tile_canvas=self.tile_canvas
+                self.boardview_frame,
+                board=board,
+                tile_canvas=self.tile_canvas,
+                pix_height=self.canvas_height,
+                pix_width=self.canvas_width,
             )
             self.board_canvas.bind("<Button-1>", self.board_canvas.on_click)
             self.board_canvas.grid(row=0, column=0, padx=5, pady=5)
