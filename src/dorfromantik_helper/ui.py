@@ -123,7 +123,7 @@ class DorfBoardCanvas(Canvas):
             (pix_x, pix_y + y_size),
         ]
         # Draw hexagon
-        if fill_color != None:
+        if fill_color is not None:
             self.create_polygon(
                 vertices[0],
                 vertices[1],
@@ -134,7 +134,7 @@ class DorfBoardCanvas(Canvas):
                 fill=fill_color,
             )
         # Draw outline
-        if border_color != None:
+        if border_color is not None:
             for i in range(len(vertices)):
                 self.create_line(
                     vertices[i],
@@ -192,7 +192,7 @@ class DorfBoardCanvas(Canvas):
             self.selected_hex = None
         # Get location of newly selected hex tile (if any)
         loc = self.get_xy_from_pix(event.x, event.y)
-        if loc == None:
+        if loc is None:
             return
         # Highlight newly selected tile if not empty
         x, y = loc
@@ -267,9 +267,9 @@ class HexTileCanvas(Canvas):
         self, index, border_color="black", border_width=2, fill_color="blue"
     ):
         vertices = self.get_triangle_vertices(index)
-        if fill_color != None:
+        if fill_color is not None:
             self.create_polygon(vertices[0], vertices[1], vertices[2], fill=fill_color)
-        if border_color != None:
+        if border_color is not None:
             for i in range(len(vertices)):
                 self.create_line(
                     vertices[i],
@@ -283,9 +283,9 @@ class HexTileCanvas(Canvas):
     ):
         _, a, b = self.get_triangle_vertices(index, scale=1.1)
         _, d, c = self.get_triangle_vertices(index, scale=1.2)
-        if fill_color != None:
+        if fill_color is not None:
             self.create_polygon(a, b, c, d, fill=fill_color)
-        if border_color != None:
+        if border_color is not None:
             self.create_line(a, b, fill=border_color, width=border_width)
             self.create_line(b, c, fill=border_color, width=border_width)
             self.create_line(c, d, fill=border_color, width=border_width)
@@ -393,7 +393,7 @@ class HexTileCanvas(Canvas):
         # Get location of newly selected hex tile (if any)
         index = self.get_index_from_pix(event.x, event.y)
         print("Selected slice: ", index)
-        if index == None:
+        if index is None:
             return
         # Highlight newly selected tile if valid
         self.select_slice(index)
@@ -551,7 +551,7 @@ class App(Tk):
         self.log.config(text="Placed tile at ({},{})".format(x, y))
 
     def remove_tile(self):
-        if self.board_canvas.selected_hex == None:
+        if self.board_canvas.selected_hex is None:
             self.log.config(text="ERROR: No selected hex to remove")
             return
         x, y = self.board_canvas.selected_hex
@@ -568,7 +568,7 @@ class App(Tk):
         self.log.config(text="Removed tile at ({},{})".format(x, y))
 
     def sample_tile(self):
-        if self.board_canvas.selected_hex == None:
+        if self.board_canvas.selected_hex is None:
             self.log.config(text="ERROR: No selected hex to sample")
             return
         x, y = self.board_canvas.selected_hex

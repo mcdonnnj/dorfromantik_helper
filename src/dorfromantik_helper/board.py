@@ -274,12 +274,12 @@ class DorfBoard:
     def get_hint(self, tile, top_k=None, threshold=None):
         ranked_evaluations = self.rank_all_placements(tile)
         num_evals = len(ranked_evaluations)
-        if not threshold is None:
+        if threshold is not None:
             above_threshold = [
                 evaluation["score"] >= threshold for _, evaluation in ranked_evaluations
             ]
             num_evals = above_threshold.index(False)
-        if not top_k is None:
+        if top_k is not None:
             num_evals = min(top_k, num_evals)
         return ranked_evaluations[0:num_evals]
 
