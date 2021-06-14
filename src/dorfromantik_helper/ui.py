@@ -1,6 +1,6 @@
 """Canvas that displays the full game board."""
 # Standard Python Libraries
-import tkinter
+import tkinter as tk
 
 # Third-Party Libraries
 import numpy as np
@@ -9,11 +9,11 @@ from . import constants
 from .board import DorfBoard
 
 
-class DorfBoardCanvas(tkinter.Canvas):
+class DorfBoardCanvas(tk.Canvas):
     def __init__(
         self, master, board, tile_canvas, pix_height, pix_width, *args, **kwargs
     ):
-        tkinter.Canvas.__init__(
+        tk.Canvas.__init__(
             self,
             master,
             background="white",
@@ -210,14 +210,14 @@ class DorfBoardCanvas(tkinter.Canvas):
             self.hint_hexes.append((x, y))
 
 
-class HexTileCanvas(tkinter.Canvas):
+class HexTileCanvas(tk.Canvas):
     def __init__(self, master, scale, *args, **kwargs):
         self.x_scale = (scale ** 2 - (scale / 2.0) ** 2) ** 0.5  # hexagon width
         self.y_scale = scale  # half hexagon height
         self.pix_height = 3 * self.y_scale
         self.pix_width = 3 * self.x_scale
 
-        tkinter.Canvas.__init__(
+        tk.Canvas.__init__(
             self,
             master,
             background="white",
@@ -392,27 +392,21 @@ class HexTileCanvas(tkinter.Canvas):
         self.select_slice(index)
 
 
-class App(tkinter.Tk):
+class App(tk.Tk):
     def __init__(self, from_npz, pix_height, pix_width, *args, **kwargs):
-        tkinter.Tk.__init__(self, *args, **kwargs)
+        tk.Tk.__init__(self, *args, **kwargs)
 
         board = DorfBoard(from_npz=from_npz)
 
         self.canvas_height = pix_height
         self.canvas_width = pix_width
 
-        self.boardview_frame = tkinter.Frame(
+        self.boardview_frame = tk.Frame(
             self, background="#FFF0C1", bd=1, relief="sunken"
         )
-        self.tile_frame = tkinter.Frame(
-            self, background="#D2E2FB", bd=1, relief="sunken"
-        )
-        self.control_frame = tkinter.Frame(
-            self, background="#CCE4CA", bd=1, relief="sunken"
-        )
-        self.textlog_frame = tkinter.Frame(
-            self, background="#F5C2C1", bd=1, relief="sunken"
-        )
+        self.tile_frame = tk.Frame(self, background="#D2E2FB", bd=1, relief="sunken")
+        self.control_frame = tk.Frame(self, background="#CCE4CA", bd=1, relief="sunken")
+        self.textlog_frame = tk.Frame(self, background="#F5C2C1", bd=1, relief="sunken")
 
         self.boardview_frame.grid(
             row=0, column=0, columnspan=3, sticky="nsew", padx=2, pady=2
@@ -447,28 +441,16 @@ class App(tkinter.Tk):
 
         board_controls = []
         frame = self.control_frame
+        board_controls.append(tk.Button(frame, text="Place", command=self.place_tile))
+        board_controls.append(tk.Button(frame, text="Hint", command=self.display_hint))
+        board_controls.append(tk.Button(frame, text="Sample", command=self.sample_tile))
+        board_controls.append(tk.Button(frame, text="Remove", command=self.remove_tile))
+        board_controls.append(tk.Button(frame, text="Undo", command=self.undo))
         board_controls.append(
-            tkinter.Button(frame, text="Place", command=self.place_tile)
+            tk.Button(frame, text="Stats", command=self.display_stats)
         )
-        board_controls.append(
-            tkinter.Button(frame, text="Hint", command=self.display_hint)
-        )
-        board_controls.append(
-            tkinter.Button(frame, text="Sample", command=self.sample_tile)
-        )
-        board_controls.append(
-            tkinter.Button(frame, text="Remove", command=self.remove_tile)
-        )
-        board_controls.append(tkinter.Button(frame, text="Undo", command=self.undo))
-        board_controls.append(
-            tkinter.Button(frame, text="Stats", command=self.display_stats)
-        )
-        board_controls.append(
-            tkinter.Button(frame, text="Save", command=self.manual_save)
-        )
-        board_controls.append(
-            tkinter.Button(frame, text="Quit", command=self.correct_quit)
-        )
+        board_controls.append(tk.Button(frame, text="Save", command=self.manual_save))
+        board_controls.append(tk.Button(frame, text="Quit", command=self.correct_quit))
         for i, button in enumerate(board_controls):
             button.grid(row=i, column=0)
 
@@ -476,45 +458,31 @@ class App(tkinter.Tk):
         frame = self.control_frame
         fn = self.tile_canvas.set_selected_edge
         tile_controls.append(
-            tkinter.Button(frame, text="ALL", command=self.tile_canvas.select_all)
+            tk.Button(frame, text="ALL", command=self.tile_canvas.select_all)
         )
         tile_controls.append(
-            tkinter.Button(
-                frame, text="Grass", command=lambda: fn(constants.TileEdge.GRASS)
-            )
+            tk.Button(frame, text="Grass", command=lambda: fn(constants.TileEdge.GRASS))
         )
         tile_controls.append(
-            tkinter.Button(
-                frame, text="Trees", command=lambda: fn(constants.TileEdge.TREES)
-            )
+            tk.Button(frame, text="Trees", command=lambda: fn(constants.TileEdge.TREES))
         )
         tile_controls.append(
-            tkinter.Button(
-                frame, text="House", command=lambda: fn(constants.TileEdge.HOUSE)
-            )
+            tk.Button(frame, text="House", command=lambda: fn(constants.TileEdge.HOUSE))
         )
         tile_controls.append(
-            tkinter.Button(
-                frame, text="Crops", command=lambda: fn(constants.TileEdge.CROPS)
-            )
+            tk.Button(frame, text="Crops", command=lambda: fn(constants.TileEdge.CROPS))
         )
         tile_controls.append(
-            tkinter.Button(
-                frame, text="River", command=lambda: fn(constants.TileEdge.RIVER)
-            )
+            tk.Button(frame, text="River", command=lambda: fn(constants.TileEdge.RIVER))
         )
         tile_controls.append(
-            tkinter.Button(
-                frame, text="Train", command=lambda: fn(constants.TileEdge.TRAIN)
-            )
+            tk.Button(frame, text="Train", command=lambda: fn(constants.TileEdge.TRAIN))
         )
         tile_controls.append(
-            tkinter.Button(
-                frame, text="Water", command=lambda: fn(constants.TileEdge.WATER)
-            )
+            tk.Button(frame, text="Water", command=lambda: fn(constants.TileEdge.WATER))
         )
         tile_controls.append(
-            tkinter.Button(
+            tk.Button(
                 frame, text="Station", command=lambda: fn(constants.TileEdge.STATION)
             )
         )
@@ -524,14 +492,14 @@ class App(tkinter.Tk):
         rotate_controls = []
         frame = self.control_frame
         rotate_controls.append(
-            tkinter.Button(
+            tk.Button(
                 frame,
                 text="Rotate CW",
                 command=lambda: self.tile_canvas.rotate(reverse=False),
             )
         )
         rotate_controls.append(
-            tkinter.Button(
+            tk.Button(
                 frame,
                 text="Rotate CCW",
                 command=lambda: self.tile_canvas.rotate(reverse=True),
@@ -540,7 +508,7 @@ class App(tkinter.Tk):
         for i, button in enumerate(rotate_controls):
             button.grid(row=i, column=2)
 
-        self.log = tkinter.Label(self.textlog_frame, text="")
+        self.log = tk.Label(self.textlog_frame, text="")
         self.log.pack()
 
         self.can_undo = False
