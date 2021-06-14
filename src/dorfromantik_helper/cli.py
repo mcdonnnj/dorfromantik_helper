@@ -21,10 +21,14 @@ def main():
         "--load", "-l", action="store_true", help="Load data from last manual save"
     )
     parser.add_argument(
-        "--height", "-y", type=int, help="Pixel height of the board display"
+        "--height",
+        "-y",
+        type=int,
+        default=1000,
+        help="Pixel height of the board display",
     )
     parser.add_argument(
-        "--width", "-x", type=int, help="Pixel width of the board display"
+        "--width", "-x", type=int, default=1300, help="Pixel width of the board display"
     )
     args = parser.parse_args()
 
